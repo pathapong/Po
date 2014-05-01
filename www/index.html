@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html><!--HTML5 doctype-->
+
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Pragma" content="no-cache">
+<script type="text/javascript" charset="utf-8" src="intelxdk.js"></script>
+<script type="text/javascript" language="javascript">
+    // This event handler is fired once the intel libraries are ready
+    function onDeviceReady() {
+        //hide splash screen now that our app is ready to run
+        intel.xdk.device.hideSplashScreen();
+        setTimeout(function () {
+            $.ui.launch();
+        }, 50);
+    }
+    //initial event handler to detect when intel is ready to roll
+    document.addEventListener("intel.xdk.device.ready", onDeviceReady, false);
+</script>
+<script src="js/appframework.ui.min.js"></script>
+<script>
+    $.ui.autoLaunch = false;
+    $.ui.useOSThemes = true; //Change this to false to force a device theme
+    $.ui.blockPageScroll();
+    $(document).ready(function () {
+        if ($.ui.useOSThemes && (!$.os.ios||$.os.ios7))
+            $("#afui").removeClass("ios");
+    });
+</script>
+<link href="css/icons.css" rel="stylesheet" type="text/css">
+<link href="css/af.ui.css" rel="stylesheet" type="text/css">
+
+
+<script>
+    /////////////เขียนสริป สมัครสมาชิก ///////////////////
+       var clk;
+    
+     var ph;
+
+     function signup_ST() {
+         var st = "NAME_ST=" + escape(document.getElementById("name")
+             .value) + "&" + "Lastname_ST=" + escape(document.getElementById("lastname")
+             .value) + "&" + "Username_ST=" + escape(document.getElementById("username1")
+             .value) + "&" + "Password_ST=" + escape(document.getElementById("password1")
+             .value) + "&" + "Email_ST=" + escape(document.getElementById("email")
+             .value);
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/singup_ST.php",
+             "POST",
+             st,
+             "success_signup",
+             "error_handler");
+     }
+
+     function success_signup(data) {
+         var st = "";
+         alert(st + " " + data);
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }
+      /////////////// เขียนสคริป สมัครสมาชิกอาจารย์//////////
+
+     function signup_T() {
+         var st = "Username_T=" + escape(document.getElementById("username2")
+             .value) + "&" + "Password_T=" + escape(document.getElementById("password2")
+             .value) + "&" + "name_T=" + escape(document.getElementById("name2")
+             .value) + "&" + "lastname_T=" + escape(document.getElementById("lastname2")
+             .value) + "&" + "Email_T=" + escape(document.getElementById("email2")
+             .value);
+
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/singup_T.php",
+             "POST",
+             st,
+             "success_signup_T",
+             "error_handler_T");
+     }
+
+     function success_signup_T(data) {
+         var st = "";
+         alert(st + " " + data);
+     }
+
+     function error_handler_T(data) {
+         alert("error: " + data);
+     }
+
+      //////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+     function signin(data) {
+
+
+         var st = "NAME_ST=" + escape(document.getElementById("username")
+             .value) + "&" +
+             "PASS_ST=" + escape(document.getElementById("password")
+                 .value);
+
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/singin_ST.php",
+             "POST",
+             st,
+             "success_signin",
+             "error_handler");
+     }
+
+     function success_signin(data) {
+
+
+         var jsondata = JSON.parse(data);
+
+         if (data != "<h1>NAME_ST or PASS_ST incorrect!!</h1>") {
+             document.getElementById("page_1")
+                 .style.display = "none";
+             document.getElementById("page_3")
+                 .style.display = "block";
+         }
+
+
+         intel.xdk.cache.setCookie("cklogin", jsondata[0], -1);
+         if (clk == null) {
+             clk = intel.xdk.cache.getCookie("cklogin");
+         }
+
+         if (clk) {
+             alert("Success!!" + clk);
+         } else {
+             alert("UnSucces!!" + clk);
+         }
+
+
+     }
+
+
+
+     function loginT(data) {
+         var st = "NAME_T=" + escape(document.getElementById("username")
+             .value) + "&" +
+             "PASS_T=" + escape(document.getElementById("password")
+                 .value);
+
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/singin_T.php",
+
+             "POST",
+             st,
+             "success_signinT",
+             "error_handlerT");
+     }
+
+
+     function success_signinT(data) {
+         alert("" + data);
+         if (data != "<h1>User or Password incorrect!!</h1>") {
+             document.getElementById("page_7")
+                 .style.display = "none";
+             document.getElementById("page_9")
+                 .style.display = "block";
+         }
+     }
+
+     function error_handlerT(data) {
+         alert("student_id Error: " + data);
+     }
+
+
+     function getAllUsers(week)
+
+      {
+          intel.xdk.cache.setCookie("WEEK_NUMBER",week,-1);    
+          var str = "ID="+week + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/List.php",
+             "POST",
+             str,
+             "success_gelAllUsers",
+             "error_handler");
+     }
+
+
+     function success_gelAllUsers(data) {
+         alert("" + data);
+         console.log(data);
+         st = '<ul class="list" data-appbuilder-object="list">';
+         var members = JSON.parse(data);
+         members.forEach(function (user) {
+             alert("work_id:" + user.work_id);
+             st += '<li><a href=#temp onClick="getPassword('+ user.work_id + ')">หัวเรื่องาน:'+ user.topic + 'อาจารย์: ' + user.detail + '</a></li>';
+
+         });
+
+
+         st += '</ul>';
+         console.log(st);
+
+         document.getElementById("users")
+             .innerHTML = st;
+         alert(clk);
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }
+
+     function getPassword(work_id) {
+        
+         alert("ID" + work_id);
+    var str = "ID="+work_id + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/all.php",
+             "POST",
+             str,
+             "success_password",
+             "error_handler");
+     }
+
+
+
+
+     function success_password(data) {
+
+         console.log(data);
+         alert(data)
+         st = '<ul class="list" data-appbuilder-object="list">';
+         var members = JSON.parse(data);
+         members.forEach(function (user) {
+             st += '<br><li>หัวข้องาน:' + user.topic + '<br>ชื่อนักศกษา' + user.student_id + ' <br>ชื่อนักศึกษา:' + user.teacher_id + '</li>';
+             intel.xdk.cache.setCookie("ASSING_ID",user.assing_id,-1);
+             document.getElementById('ans1').value=user.url_answer;
+               document.getElementById('ans11').value=user.student_answer;
+           
+         });
+
+         st += '</ul>';
+         console.log(st);
+
+         document.getElementById("user").innerHTML = st;
+
+     }
+
+     function error_handler(data) 
+    {
+         alert("error: " + data);
+     }
+    
+    
+
+   
+
+/*
+      //// ทำการ แสดงดูรรยชื่องาน\\\\\\\\
+     function getPassword(work_id ) {
+         var str = "ID="+work_id + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+         alert(work_id);
+         
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/all.php",
+             "POST",
+             "work_id=" + work_id,
+             "success_password",
+             "error_handler");
+     }
+*/
+
+
+/*
+     function success_password(data) {
+
+         console.log(data);
+
+         st = '<ul class="list" data-appbuilder-object="list">';
+         var members = JSON.parse(data);
+         members.forEach(function (user) {
+             st += '<br><li>หัวข้องาน:' + user.topic + '<br>ชื่อนักศึกษา ' + user.student_id + ' <br>ชื่อนักศึกษา:' + user.teacher_id + '</li>';
+         });
+
+         st += '</ul>';
+         console.log(st);
+
+         document.getElementById("user")
+             .innerHTML = st;
+
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }*/
+      //////////////////////////////////////////////////////////////////
+
+
+      /////////////////////////////////////////*****แสดงรายชื่อ
+
+     function getPassword11(weekNumber) {
+                alert("ID" + weekNumber);
+       var str = "ID="+weekNumber + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+        
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/status1.php",
+             "POST",
+             str,
+             "success_password11",
+             "error_handler");
+     }
+
+
+
+
+     function success_password11(data) {
+
+         console.log(data);
+
+         st = '<ul class="list" data-appbuilder-object="list">';
+         var members = JSON.parse(data);
+         members.forEach(function (user12) {
+             st += '<br><li>ID:'+user12.assing_id+'ลิงค์ที่ตอบ:' + user12.url_answer + '<br>นักศึกษาตอบ ' + user12.student_answer + ' <br>สถานะ:' + user12.status + '</li>';
+         });
+
+         st += '</ul>';
+         console.log(st);
+
+         document.getElementById("user12").innerHTML = st;
+
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }
+
+
+      ///////////////////ให้งาน///////////////////////
+     function work() {
+         
+
+         
+         var st = "topic_work=" + escape(document.getElementById("topic")
+             .value) + "&" + "detail_work=" + escape(document.getElementById("detail")
+             .value) + "&" + "URL_work=" + escape(document.getElementById("URL")
+             .value);
+
+
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/work.php",
+             "POST",
+             st,
+             "success_work",
+             "error_work");
+     }
+
+     function success_work(data) {
+    //var str = "ID="+data + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+
+         var st = "";
+         alert(st + " " + data);
+     }
+
+     function error_work(data) {
+         alert("error: " + data);
+     }
+
+
+      ///////////////////////////////////////////////////////////////////////////////////
+     function send() {
+       
+
+         
+         var st = "ASSING_ID=" + intel.xdk.cache.getCookie("ASSING_ID")+"&"+
+                    "send=" + escape(document.getElementById("ans1").value) + "&" +
+                    "send1=" + escape(document.getElementById("ans11").value);
+         
+             
+
+         intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/set_T.php",
+             "POST",
+             st,
+             "success_send",
+             "error_send");
+     }
+
+     function success_send(data) {
+         var st = "";
+    alert(st);
+         alert(st + " "  +data);
+     }
+
+     function error_send(data) {
+         alert("error: " + data);
+     }
+    
+    
+    
+    
+    //*******************************************************
+    
+    /*
+       function getPassword111() {
+           
+ var str = "WEEKNUMBER="+ intel.xdk.cache.getCookie("WEEK_NUMBER") + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin");
+         console.log(str);
+           intel.xdk.device.getRemoteData(
+             "http://localhost/Ae2DE/status.php",
+             "POST",
+             str,
+             "success_password111",
+             "error_handler");
+     }
+
+
+
+
+     function success_password111(data) {
+
+         console.log(data);
+
+         st = '<div class="list" data-appbuilder-object="list">';
+         var members = JSON.parse(data);
+         members.forEach(function (user121) {
+        //     st += '<br><input name=editanswer>ลิงค์ที่ตอบ:' + user121.url_answestatus + '</li>';
+    st+='<br><input style="float:left;" hidden="true" id="editid" value="'+user121.assing_id+'"></input>';
+             st+='<br><input style="float:left;" id="editurlanswer" value="'+user121.url_answer+'"></input>';
+             st+='<br><input style="float:left;" id="editstudentanswer" value="'+user121.student_answer+'"></input>';
+             st+='<br><button style="float:left;" onclick="editup('+user121.assing_id+')">Submit</button>';
+             
+             
+             
+         });
+
+         st += '</div>';
+         console.log(st);
+
+         document.getElementById("user121").innerHTML = st;
+
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }
+ ///////////////////////////////////////////////////////////////////////
+    
+    
+    */
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+       function editup(assing_id)
+    {
+        var sx = "ID="+assing_id + "&" + "STUDENT=" + intel.xdk.cache.getCookie("cklogin")+"&"+
+
+    "editurlanswer=" + escape(document.getElementById("editurlanswer").value) + "&"  + "editstudentanswer="+escape(document.getElementById("editstudentanswer").value);
+        
+     //  intel.xdk.cache.setCookie("ID",assing_id,-1);
+        
+     //assing_id = intel.xdk.cache.getCookie("ID");
+         
+        alert(sx);
+         intel.xdk.device.getRemoteData(
+         "http://localhost/Ae2DE/edit_up.php",
+        "POST",
+        sx,    
+        "success_editup",
+        "error_handler");    
+        
+    }
+    
+   
+    function success_editup(data)
+    {
+        
+         alert(" " + data);    
+    }
+    
+    
+    /////////////////////////////////////////////////////////////////////////////////////////
+</script>
+
+
+</head>
+
+<div id="afui" class="ios">
+    <div id="header"></div>
+    <div id="content" style="">
+
+
+        /////////////////////////////หน้าหลักของการเลือกข้อมุลว่าเป็นใคร///////////////////////////
+        <div class="panel" title="Main" data-nav="nav_0" id="main" selected="selected"
+        style="" data-appbuilder-object="page">
+
+            <ul class="list inset" data-appbuilder-object="list" style="">
+                <li><a href="#page_7">อาจารย์ที่ปรึกษา</a>
+                </li>
+                <li><a href="#">อาจารย์ประจำวิชา</a>
+                </li>
+                <li><a href="#page_1">นักศึกษา</a>
+                </li>
+            </ul>
+        </div>
+
+        //////////////////////////////////////////////////////////////////////////// ///////////////////////////////////////////////////////หน้าเข้าสู่ระบบ
+        นศ///////////////////
+        <div class="panel" title="login_St" data-nav="nav_0" id="page_1" data-appbuilder-object="page"
+        style="">
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">Username</label>
+                <input type="text" style="float:left;" id="username" placeholder="">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">Password</label>
+                <input type="text" style="float:left;" id="password" placeholder="">
+            </div><a class="button" href="#page_2" style="" data-appbuilder-object="button"
+            data-transition="slide" id="">สมัครสมาชิก</a>
+            <input type="button" class="button" value="login" onclick="signin();" data-appbuilder-object="button">
+        </div>\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        ////////////////////////////////////////หน้ากรอกข้อมูลของ นศ///////////////////////////////////
+        <div class="panel" title="Register_ST" data-nav="nav_0" id="page_2" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text" style="">ทำการสมัครสมาชิก นักศึกษา</div>
+            <div class="input_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="input">
+                <label for="">Name</label>
+                <input type="text" style="float:left;" id="name" value="name">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">Lastname</label>
+                <input type="text" style="float:left;" id="lastname" value="lastname">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">Username</label>
+                <input type="text" style="float:left;" id="username1" value="username">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">Password</label>
+                <input type="password" style="float:left;" id="password1" value="password">
+            </div>
+            <div class="input_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="input">
+                <label for="">email</label>
+                <input type="text" style="float:left;" id="email" placeholder="email1">
+
+            </div>
+
+            <input type="button" class="button" value="Sign up" onclick="signup_ST();" data-appbuilder-object="button">
+
+        </div>
+
+
+        \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+
+        <div class="panel" title="Welcome To Student" id="page_3" data-appbuilder-object="page"
+        style="">
+
+            <div class="text_item" data-appbuilder-object="text">เมนูนักศึกษา</div>
+            <ul class="list inset" data-appbuilder-object="list">
+                <li><a href="#page_4">ดูโจทย์ที่ อาจารย์ประจำวิชาสั่ง</a>
+                </li>
+                <li><a href="#">ดูโจทย์ที่อาจารย์ที่ปรึกษา</a>
+                </li>
+                <li><a href="#">นัดพบอาจารย์ที่ปรึกษา</a>
+                </li>
+                <li><a href="#">แหล่งความรู้</a>
+                </li>
+                <li><a href="#check">ดูการตรวจงาน</a>
+                </li>
+            </ul>
+        </div>
+
+
+
+        <div class="panel" title="ListWeek" id="page_4" data-appbuilder-object="page" style="">
+            <div class="text_item" data-appbuilder-object="text">เลือกสัปดาห์</div>
+            <ul class="list inset" data-appbuilder-object="list">
+                <li><a href="#First" onclick="getAllUsers(1);">สัปดาห์ที่1</a>
+                </li>
+                <li><a href="#First" onclick="getAllUsers(2);">สัปดาห์ที่2</a>
+                </li>
+                <li><a href="#First" onclick="getAllUsers(3);">สัปดาหที่3</a>
+                </li>
+                <li><a href="#First" onclick="getAllUsers(4);">สัปดาห์ที4</a>
+                </li>
+                <li><a href="#First" onclick="getAllUsers(5);">สัปดาห์ที่5</a>
+                </li>
+                <li><a href="#First" onclick="getAllUsers(6);">สัปดาห์ที่6</a>
+                </li>
+            </ul>
+        </div>
+        <div class="panel" title="หัวข้องาน" data-nav="nav_0" id="First" data-appbuilder-object="page"
+        style="">
+            <div id="users">
+            </div>
+
+        </div>
+        <div class="panel" title="รายละเอียดงาน" data-nav="nav_0" id="temp" data-appbuilder-object="page"
+        style="">
+            <div id="user">
+                <li>sssssssss</li>
+            </div>
+            <center>
+                <a class="button" href="#page_12" style="" data-appbuilder-object="button" data-transition="slide"
+                id="">ส่งงาน</a> 
+            </center>
+
+        </div>
+
+
+
+
+
+        <div class="panel" title="ListWeek" id="check" data-appbuilder-object="page" style="">
+            <div class="text_item" data-appbuilder-object="text">เลือกสัปดาห์</div>
+            <ul class="list inset" data-appbuilder-object="list">
+                <li><a href="#First1" onclick="getPassword11(1);">สัปดาห์ที่1</a>
+                </li>
+                <li><a href="#First1" onclick="getPassword11(2);">สัปดาห์ที่2</a>
+                </li>
+            </ul>
+        </div>
+        <div class="panel" title="หัวข้องาน" data-nav="nav_0" id="First1" data-appbuilder-object="page"
+        style="">
+            <div id="user12">
+            </div>
+
+        </div>
+
+
+
+
+
+        <div class="panel" title="หัวข้องาน" data-nav="nav_0" id="t1" data-appbuilder-object="page"
+        style="">
+            <div id="user121" class="text_item" data-appbuilder-object="text">
+            </div>
+
+        </div>
+
+
+
+
+
+        <div class="panel" title="รายละเอียดงาน" data-nav="nav_0" id="temp1" data-appbuilder-object="page"
+        style="">
+            <div id="user">
+                <li>sssssssss</li>
+            </div>
+            <center>
+
+            </center>
+
+        </div>
+
+
+
+
+
+        <div class="panel" title="login_T1" id="page_7" data-appbuilder-object="page" style="">
+            <div class="text_item" data-appbuilder-object="text">เข้าสู่ระบบ</div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">ไอดี</label>
+                <input type="text" style="float:left;" id="" placeholder="">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">รหัสผ่าน</label>
+                <input type="text" style="float:left;" id="" placeholder="">
+            </div>
+            <input type="button" class="button" value="login" onclick="loginT();" data-appbuilder-object="button">
+            <a class="button" href="#page_8" style="" data-appbuilder-object="button" data-transition="slide">สมัครสมาชิก</a>
+        </div>
+
+        /////////////////////////////////////หน้าสมัครของอาจารย์/////////////////////////
+
+        <div class="panel" title="Register_T1" id="page_8" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text">สมัครสมาชิกของอาจารย์</div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">ไอดี</label>
+                <input type="text" style="float:left;" id="username2" value="username">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">รหัสผ่าน</label>
+                <input type="text" style="float:left;" id="password2" value="password">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">ชื่อ</label>
+                <input type="text" style="float:left;" id="name2" value="name">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">นามสกุล</label>
+                <input type="text" style="float:left;" id="lastname2" value="lastname">
+            </div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">email</label>
+                <input type="text" style="float:left;" id="email2" value="email">
+            </div>
+            <input type="button" class="button" value="Sign up" onclick="signup_T();" data-appbuilder-object="button">
+
+
+        </div>
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        <div class="panel" title="Welcom to T" id="page_9" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text">เมนูอาจารย์</div>
+            <ul class="list inset" data-appbuilder-object="list">
+                <li><a href="#page_10">อาจารย์สร้างโจทย์</a>
+                </li>
+                <li><a href="#">อัพแหล่งความรู็</a>
+                </li>
+            </ul>
+        </div>
+        <div class="panel" title="เลือกสัปดาห์" id="page_10" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text">เลือกสัปดาห์</div>
+            <ul class="list inset" data-appbuilder-object="list">
+                <li><a href="#page_11">สัปดาห์ที่1</a>
+                </li>
+                <li><a href="#">สัปดาห์ที่2</a>
+                </li>
+                <li><a href="#">สัปดาห์ที่3</a>
+                </li>
+                <li><a href="#">สัปดาห์ที่4</a>
+                </li>
+                <li><a href="#">สัปดาห์ที่5</a>
+                </li>
+                <li><a href="#">สัปดาห์ที่6</a>
+                </li>
+            </ul>
+        </div>
+
+        ////////////ให้งาน นศ/////////////////////////////////////////////////////////////////////////////
+        <div class="panel" title="เพิ่มงาน" id="page_11" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text">เพิ่มงานให้กับ นศ</div>
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">หัวข้อ</label>
+                <input type="text" style="float:left;" id="topic" placeholder="">
+            </div>
+            <div class="textarea_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="textarea">
+                <label for="">รายละเอียด</label>
+                <textarea id="detail"></textarea>
+            </div>
+            <div class="input_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="input">
+                <label for="">URL</label>
+                <input type="text" style="float:left;" id="URL" placeholder="">
+            </div>
+            <input type="button" class="button" value="บันทึกข้อมูล" onclick="work();" data-appbuilder-object="button">
+
+
+        </div>
+
+        <div class="panel" title="ส่งงาน" id="page_12" data-appbuilder-object="page" style="">
+            <div class="text_item" data-appbuilder-object="text" style="">ส่งงานของวันนี้</div>
+
+            <div class="input_element form_element" style="width:100%;overflow:hidden" data-appbuilder-object="input">
+                <label for="">นศ ตอบ</label>
+                <input type="text" style="float:left;" id="ans1" placeholder="">
+            </div>
+            <div class="input_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="input">
+                <label for="">URL ที่ตอบ</label>
+                <input type="text" style="float:left;" id="ans11" placeholder="">
+            </div>
+
+
+
+            <input type="button" class="button" value="บันทึกข้อมูล" onclick="send();" data-appbuilder-object="button">
+
+
+
+            <a class="button" href="#t1" onclick="getPassword111();" style="" data-appbuilder-object="button"
+            data-transition="slide" id="">ดูงาน</a>
+        </div>
+        <div id="six" title="edit" class="panel" scrolling="no" style="" data-appbuilder-object="page"></div>
+
+
+
+
+        <div class="panel" title="แสดงงาน" id="page_14" data-appbuilder-object="page" style=""></div>
+    </div>
+    <div id="navbar">
+        <a href="#main" class="icon home">Home</a>
+    </div>
+    <header id="header_0" data-appbuilder-object="header" style="" class="">
+        <a id="backButton" href="#" class="button back" style="visibility: visible; " data-appbuilder-object="button">Back</a>
+        <h1 id="pageTitle" class="">Welcome To Student</h1> 
+    </header>
+    <nav id="nav_0" data-appbuilder-object="nav" style="" class="">
+        <h1>Side Menu</h1>
+    </nav>
+
+
+
+
+
+</div>
+
+
+
+
+
+</html>
